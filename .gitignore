@@ -1,0 +1,17 @@
+# 云游江苏 · Git 忽略规则
+# 敏感文件（绝不能上传）
+.pexels_key
+
+# 备份与临时文件
+backup/
+__pycache__/
+*.pyc
+*.tmp
+*.log
+
+# 无效残留
+music/d44a02bdd3.wav
+
+# 系统文件
+Thumbs.db
+.DS_Store

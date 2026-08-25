@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云游江苏 · 内容管理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a1424; color: #dce9f8; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: #0e1c33; border-bottom: 1px solid rgba(120,180,255,0.25);
+  position: sticky; top: 0; z-index: 50;
+}
+header h1 { font-size: 17px; letter-spacing: 0.2em; }
+#status { font-size: 13px; padding: 6px 14px; border-radius: 14px; background: #17324f; }
+#status.saving { background: #4a3a12; color: #ffd98a; }
+#status.ok { background: #123c2e; color: #8ff0c0; }
+#status.err { background: #4a1212; color: #ff9a9a; }
+#toolbar { display: flex; align-items: center; gap: 12px; }
+#saveBtn { background: #0f6e56; border-color: #1d9e75; font-weight: 700; }
+#saveBtn:hover { background: #14846a; }
+
+main { display: flex; min-height: calc(100vh - 56px); }
+#cityNav {
+  width: 170px; padding: 14px 10px; border-right: 1px solid rgba(120,180,255,0.2);
+  background: #0c1830;
+}
+#cityNav button {
+  display: block; width: 100%; text-align: left;
+  padding: 9px 14px; margin-bottom: 6px; border-radius: 8px;
+  background: #10233d; color: #cfe3f8; font-size: 14px; letter-spacing: 0.15em;
+  border: 1px solid rgba(120,180,255,0.2); cursor: pointer;
+}
+#cityNav button:hover { background: #1a3a63; }
+#cityNav button.active { background: #26548c; color: #fff; border-color: #6fb3ff; }
+#cityNav .tag { font-size: 11px; color: #8fb6dd; display: block; margin-top: 2px; }
+
+#editor { flex: 1; padding: 20px 24px 80px; overflow-y: auto; }
+#editor h2 { font-size: 20px; letter-spacing: 0.1em; margin-bottom: 6px; }
+.field-label { font-size: 13px; color: #9fc3e8; margin: 14px 0 6px; letter-spacing: 0.1em; }
+input[type=text], textarea {
+  width: 100%; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid rgba(120,180,255,0.35); background: #10233d; color: #eaf3ff;
+  font-size: 14px; font-family: inherit; outline: none;
+}
+input[type=text]:focus, textarea:focus { border-color: #6fb3ff; }
+textarea { min-height: 74px; resize: vertical; line-height: 1.7; }
+
+.card {
+  position: relative;
+  background: #0e2038; border: 1px solid rgba(120,180,255,0.22);
+  border-radius: 12px; padding: 14px 16px; margin: 10px 0;
+}
+/* 拖拽上传：拖到卡片上高亮，松手自动添加 */
+.card.drag-over { border-color: #1d9e75; box-shadow: 0 0 0 2px rgba(29,158,117,0.45); }
+.drag-hint {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(13, 60, 46, 0.88); color: #8ff0c0; font-size: 14px; letter-spacing: 0.12em;
+  border-radius: 10px; pointer-events: none; z-index: 5; text-align: center;
+}
+.card .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.card .row input[type=text] { flex: 1; }
+.card .ops { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.card .ops button {
+  padding: 6px 12px; border-radius: 7px; font-size: 12px; cursor: pointer;
+  background: #17324f; color: #cfe3f8; border: 1px solid rgba(120,180,255,0.3);
+}
+.card .ops button:hover { background: #26548c; }
+.card .ops button.del { background: #3a1515; border-color: #a33; color: #ffb0b0; }
+.card .ops button.del:hover { background: #5c2020; }
+.card .ops button:disabled, .card .img-box button:disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
+.card .img-box { display: flex; align-items: center; gap: 12px; }
+.card .img-box img { width: 70px; height: 46px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(120,180,255,0.3); }
+.card .img-box .noimg { font-size: 12px; color: #6d8db0; }
+.card .img-box button { padding: 6px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; background: #17324f; color: #cfe3f8; border: 1px solid rgba(120,180,255,0.3); }
+.add-btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; cursor: pointer;
+  background: #123c2e; color: #8ff0c0; border: 1px solid #1d9e75; margin-top: 4px;
+}
+.add-btn:hover { background: #174f3c; }
+.tip { font-size: 12px; color: #6d8db0; margin-top: 20px; line-height: 1.8; }
+/* 城市开放开关 */
+.city-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; margin-left: 6px; user-select: none; }
+.city-switch input { display: none; }
+.city-switch .slider { width: 42px; height: 21px; border-radius: 11px; background: #3a4a5e; position: relative; transition: background 0.2s; flex: none; }
+.city-switch .slider::after { content: ""; position: absolute; width: 17px; height: 17px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: left 0.2s; }
+.city-switch input:checked + .slider { background: #0f6e56; }
+.city-switch input:checked + .slider::after { left: 23px; }
+.city-switch .lbl { color: #9fc3e8; transition: color 0.2s; }
+.city-switch .lbl.off { color: #e08a6a; }
+/* 条目多图缩略图 */
+.img-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.img-thumb { position: relative; width: 110px; border: 1px solid rgba(120,180,255,0.3); border-radius: 6px; overflow: hidden; background: #10233d; }
+.img-thumb img { width: 100%; height: 60px; object-fit: cover; display: block; }
+.img-thumb .x {
+  position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+  line-height: 16px; text-align: center; border-radius: 50%;
+  background: rgba(0,0,0,0.7); color: #fff; font-size: 11px; cursor: pointer; border: none;
+}
+.img-thumb .t-ops { display: flex; }
+.img-thumb .t-ops button {
+  flex: 1; padding: 4px 0; font-size: 11px; cursor: pointer;
+  background: #17324f; color: #cfe3f8; border: 1px solid rgba(120,180,255,0.3);
+}
+.img-thumb .t-ops button:hover { background: #26548c; }
+.img-thumb .t-ops button:first-child { border-right: none; }
+.img-thumb .t-ops button:disabled { opacity: 0.35; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>云游江苏 · 内容管理</h1>
+  <div id="toolbar">
+    <button id="saveBtn" type="button">💾 保存全部</button>
+    <span id="status">就绪</span>
+  </div>
+</header>
+
+<main>
+  <nav id="cityNav"></nav>
+  <div id="editor"></div>
+</main>
+
+<script>
+"use strict";
+var cities = [];
+var current = 0;
+
+function setStatus(msg, cls) {
+  var s = document.getElementById("status");
+  s.textContent = msg;
+  s.className = cls || "";
+}
+
+/* ---------- 读取数据 ---------- */
+function load() {
+  fetch("/api/data").then(function (r) { return r.json(); }).then(function (obj) {
+    if (!obj.ok) { setStatus("读取失败: " + obj.error, "err"); return; }
+    cities = obj.data;
+    renderNav();
+    renderEditor();
+    setStatus("已加载 " + cities.length + " 个城市", "ok");
+  }).catch(function () { setStatus("服务未连接，请先运行 server.py", "err"); });
+}
+
+/* ---------- 城市导航 ---------- */
+var bgmMode = false;
+var cfgMode = false;
+function renderNav() {
+  var nav = document.getElementById("cityNav");
+  nav.innerHTML = "";
+  cities.forEach(function (c, i) {
+    var b = document.createElement("button");
+    if (!bgmMode && !cfgMode && i === current) b.className = "active";
+    b.innerHTML = c.name + '<span class="tag">' + (c.scenery.length + c.food.length + c.story.length) + ' 条内容</span>';
+    b.addEventListener("click", function () { bgmMode = false; cfgMode = false; current = i; renderNav(); renderEditor(); });
+    nav.appendChild(b);
+  });
+  var bgmBtn = document.createElement("button");
+  bgmBtn.textContent = "BGM 管理";
+  bgmBtn.className = bgmMode ? "active" : "";
+  bgmBtn.style.marginTop = "10px";
+  bgmBtn.addEventListener("click", function () { bgmMode = true; cfgMode = false; renderNav(); renderBgm(); });
+  nav.appendChild(bgmBtn);
+
+  var cfgBtn = document.createElement("button");
+  cfgBtn.textContent = "站点信息";
+  cfgBtn.className = cfgMode ? "active" : "";
+  cfgBtn.addEventListener("click", function () { cfgMode = true; bgmMode = false; renderNav(); renderConfig(); });
+  nav.appendChild(cfgBtn);
+}
+
+/* ---------- 站点信息编辑 ---------- */
+function renderConfig() {
+  var el = document.getElementById("editor");
+  el.innerHTML =
+    '<h2>站点信息</h2>' +
+    '<div class="field-label">主界面大标题</div>' +
+    '<input type="text" id="cfg_title" placeholder="如：云游江苏">' +
+    '<div class="field-label">主界面英文副标题</div>' +
+    '<input type="text" id="cfg_subtitle" placeholder="如：YUNYOU JIANGSU · 把山水与味道讲给你听">' +
+    '<div class="field-label">主界面底部版本行</div>' +
+    '<input type="text" id="cfg_version" placeholder="如：v0.3.0 · 地理师范生团队">' +
+    '<div class="field-label">资源与版权说明（关于本站页显示，支持换行）</div>' +
+    '<textarea id="cfg_copyright" placeholder="地图数据来源、配图来源、字体许可、音乐授权等..."></textarea>' +
+    '<div class="ops" style="margin-top:12px"><button id="cfg_save" type="button">保存站点信息</button></div>' +
+    '<div class="tip">保存后刷新前台即可看到新的标题、版本行与版权说明。</div>';
+  fetch("/api/config").then(function (r) { return r.json(); }).then(function (obj) {
+    if (obj.ok && obj.config) {
+      document.getElementById("cfg_title").value = obj.config.title || "";
+      document.getElementById("cfg_subtitle").value = obj.config.subtitle || "";
+      document.getElementById("cfg_version").value = obj.config.version || "";
+      document.getElementById("cfg_copyright").value = obj.config.copyright || "";
+    }
+  }).catch(function () { setStatus("服务未连接", "err"); });
+  document.getElementById("cfg_save").addEventListener("click", function () {
+    setStatus("保存中...", "saving");
+    fetch("/api/config/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        config: {
+          title: document.getElementById("cfg_title").value,
+          subtitle: document.getElementById("cfg_subtitle").value,
+          version: document.getElementById("cfg_version").value,
+          copyright: document.getElementById("cfg_copyright").value
+        }
+      })
+    }).then(function (r) { return r.json(); }).then(function (obj) {
+      if (!obj.ok) { setStatus(obj.error, "err"); alert("保存失败：" + obj.error); return; }
+      setStatus("已保存 ✓ 前台刷新即生效", "ok");
+    }).catch(function () { setStatus("保存失败：服务未连接", "err"); });
+  });
+}
+
+/* ---------- BGM 管理 ---------- */
+function renderBgm() {
+  var el = document.getElementById("editor");
+  el.innerHTML =
+    '<h2>BGM 管理</h2>' +
+    '<div class="field-label">歌曲列表（前台点击 ♪ 播放第一首）</div>' +
+    '<div id="songList"></div>' +
+    '<div class="field-label">添加新歌</div>' +
+    '<div class="card">' +
+    '  <div class="row"><input type="text" id="songName" placeholder="歌名（留空则用文件名）"></div>' +
+    '  <div class="row"><input type="file" id="songFile" accept="audio/*"></div>' +
+    '  <div class="ops"><button id="songUp" type="button">上传歌曲</button></div>' +
+    '</div>' +
+    '<div class="tip">支持 m4a / mp3 / wav / ogg / flac，单个不超过 50MB。删除歌曲后刷新前台即可生效。</div>';
+  loadSongs();
+  document.getElementById("songUp").addEventListener("click", uploadSong);
+}
+
+function loadSongs() {
+  fetch("/api/songs").then(function (r) { return r.json(); }).then(function (obj) {
+    if (!obj.ok) { setStatus(obj.error, "err"); return; }
+    renderSongList(obj.songs);
+  }).catch(function () { setStatus("服务未连接", "err"); });
+}
+
+function renderSongList(songs) {
+  var box = document.getElementById("songList");
+  if (!box) return;
+  box.innerHTML = "";
+  if (!songs.length) {
+    box.innerHTML = '<div class="tip">暂无歌曲</div>';
+    return;
+  }
+  songs.forEach(function (s) {
+    var card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML =
+      '<div class="row"><input type="text" value="' + esc(s.name) + '" readonly></div>' +
+      '<div class="ops"><span class="tip" style="margin:0;font-size:12px">' + esc(s.file) + '</span>' +
+      '<button type="button" class="del" data-file="' + esc(s.file) + '">删除</button></div>';
+    card.querySelector(".del").addEventListener("click", function () {
+      if (!confirm("删除这首歌？")) return;
+      delSong(s.file);
+    });
+    box.appendChild(card);
+  });
+}
+
+function uploadSong() {
+  var f = document.getElementById("songFile").files[0];
+  if (!f) { alert("请选择音频文件"); return; }
+  if (f.size > 50 * 1024 * 1024) { alert("文件超过 50MB"); return; }
+  var name = document.getElementById("songName").value.trim();
+  setStatus("上传中...", "saving");
+  var rd = new FileReader();
+  rd.onload = function () {
+    fetch("/api/song/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: f.name, name: name, data64: rd.result.split(",")[1] })
+    }).then(function (r) { return r.json(); }).then(function (obj) {
+      if (!obj.ok) { setStatus(obj.error, "err"); alert(obj.error); return; }
+      setStatus("已添加 ✓", "ok");
+      renderSongList(obj.songs);
+      document.getElementById("songName").value = "";
+      document.getElementById("songFile").value = "";
+    }).catch(function () { setStatus("上传失败", "err"); });
+  };
+  rd.readAsDataURL(f);
+}
+
+function delSong(file) {
+  fetch("/api/song/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ file: file })
+  }).then(function (r) { return r.json(); }).then(function (obj) {
+    if (!obj.ok) { setStatus(obj.error, "err"); alert(obj.error); return; }
+    setStatus("已删除 ✓", "ok");
+    renderSongList(obj.songs);
+  }).catch(function () { setStatus("删除失败", "err"); });
+}
+
+/* ---------- 编辑器 ---------- */
+function renderEditor() {
+  var c = cities[current];
+  var el = document.getElementById("editor");
+  if (!c) { el.innerHTML = ""; return; }
+  var openState = c.open !== false;
+  var html = '<h2 style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">' + c.full +
+    '<label class="city-switch" title="关闭后前台该城市显示灰色，点击提示「前方的道路」">' +
+    '<input type="checkbox" id="f_open"' + (openState ? ' checked' : '') + '>' +
+    '<span class="slider"></span><span class="lbl' + (openState ? '' : ' off') + '" id="f_open_lbl">' + (openState ? '开放云游' : '已锁定') + '</span>' +
+    '</label></h2>';
+  html += '<div class="field-label">一句话简介（tagline）</div>';
+  html += '<input type="text" id="f_tagline" value="' + esc(c.tagline || "") + '">';
+
+  html += blockHtml("风景", "scenery", c.scenery);
+  html += blockHtml("美食", "food", c.food);
+  html += blockHtml("文化故事", "story", c.story);
+  el.innerHTML = html;
+  bindBlockEvents();
+}
+
+function blockHtml(title, keyName, list) {
+  var bgPath = (cities[current].bg && cities[current].bg[keyName]) || "";
+  var h = '<div class="field-label">' + title + '</div>';
+  h += '<div class="img-box" style="margin-bottom:8px;align-items:center">';
+  if (bgPath) { h += '<img src="' + esc(bgPath) + '" alt="' + title + '背景">'; }
+  else { h += '<span class="noimg">板块背景图：未设置</span>'; }
+  h += '<button type="button" class="up-bg" data-key="' + keyName + '">设置背景图</button>';
+  h += '<button type="button" class="rm-bg" data-key="' + keyName + '"' + (bgPath ? '' : ' disabled') + '>删除</button>';
+  h += '</div>';
+  list.forEach(function (item, i) {
+    h += '<div class="card" data-key="' + keyName + '" data-i="' + i + '">';
+    h += '<div class="row"><input type="text" data-f="t" value="' + esc(item.t) + '" placeholder="标题"></div>';
+    h += '<textarea data-f="d" placeholder="正文">' + esc(item.d || "") + '</textarea>';
+    var itemImgs = (item.imgs && item.imgs.length) ? item.imgs : (item.img ? [item.img] : []);
+    h += '<div class="img-box" style="margin-top:10px">';
+    if (!itemImgs.length) { h += '<span class="noimg">暂无图片</span>'; }
+    h += '<button type="button" class="up-imgs" data-i="' + i + '" data-key="' + keyName + '">＋ 添加图片（' + itemImgs.length + '/3）</button>';
+    h += '</div>';
+    if (itemImgs.length) {
+      h += '<div class="img-thumbs">';
+      itemImgs.forEach(function (p, k) {
+        h += '<div class="img-thumb"><img src="' + esc(p) + '" alt="">' +
+          '<button type="button" class="x" data-i="' + i + '" data-key="' + keyName + '" data-k="' + k + '" title="删除这张">×</button>' +
+          '<div class="t-ops">' +
+          '<button type="button" class="mv-l" data-i="' + i + '" data-key="' + keyName + '" data-k="' + k + '"' + (k === 0 ? ' disabled' : '') + '>← 左移</button>' +
+          '<button type="button" class="mv-r" data-i="' + i + '" data-key="' + keyName + '" data-k="' + k + '"' + (k === itemImgs.length - 1 ? ' disabled' : '') + '>右移 →</button>' +
+          '</div></div>';
+      });
+      h += '</div>';
+    }
+    h += '<div class="ops" style="margin-top:10px">';
+    h += '<button type="button" class="mv" data-d="-1" data-i="' + i + '" data-key="' + keyName + '">↑ 上移</button>';
+    h += '<button type="button" class="mv" data-d="1" data-i="' + i + '" data-key="' + keyName + '">↓ 下移</button>';
+    h += '<button type="button" class="del" data-i="' + i + '" data-key="' + keyName + '">删除</button>';
+    h += '</div></div>';
+  });
+  h += '<button type="button" class="add-btn" data-key="' + keyName + '">+ 新增' + title + '</button>';
+  return h;
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* ---------- 事件绑定 ---------- */
+function bindBlockEvents() {
+  var c = cities[current];
+
+  /* 城市开放开关：切换即保存，前台刷新即生效 */
+  var openInput = document.getElementById("f_open");
+  if (openInput) {
+    openInput.addEventListener("change", function (e) {
+      c.open = e.target.checked;
+      var lbl = document.getElementById("f_open_lbl");
+      if (lbl) {
+        lbl.textContent = c.open ? "开放云游" : "已锁定";
+        lbl.classList.toggle("off", !c.open);
+      }
+      saveAll();
+    });
+  }
+
+  document.getElementById("f_tagline").addEventListener("input", function (e) {
+    c.tagline = e.target.value;
+  });
+
+  document.querySelectorAll("#editor input[data-f], #editor textarea[data-f]").forEach(function (inp) {
+    inp.addEventListener("input", function (e) {
+      var card = inp.closest(".card");
+      if (!card) return;
+      var list = c[card.getAttribute("data-key")];
+      var item = list[parseInt(card.getAttribute("data-i"))];
+      item[inp.getAttribute("data-f")] = inp.value;
+    });
+  });
+
+  document.querySelectorAll(".add-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      c[b.getAttribute("data-key")].push({ t: "新条目", d: "" });
+      renderEditor();
+    });
+  });
+
+  document.querySelectorAll(".mv").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      var i = parseInt(b.getAttribute("data-i"));
+      var d = parseInt(b.getAttribute("data-d"));
+      var arr = c[k];
+      var j = i + d;
+      if (j < 0 || j >= arr.length) return;
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      renderEditor();
+    });
+  });
+
+  document.querySelectorAll(".del").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      var i = parseInt(b.getAttribute("data-i"));
+      if (!confirm("删除这条？")) return;
+      c[k].splice(i, 1);
+      renderEditor();
+    });
+  });
+
+  document.querySelectorAll(".up-imgs").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      var i = parseInt(b.getAttribute("data-i"));
+      var item = c[k][i];
+      if (!item.imgs) item.imgs = [];
+      if (!item.imgs.length && item.img) item.imgs = [item.img];
+      var remain = 3 - item.imgs.length;
+      if (remain <= 0) { alert("每条内容最多 3 张图片"); return; }
+      var input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.multiple = true;
+      input.addEventListener("change", function () {
+        var files = Array.prototype.slice.call(input.files).slice(0, remain);
+        if (!files.length) return;
+        files.forEach(function (f) { if (f.size > 8 * 1024 * 1024) { alert("图片超过 8MB 会被跳过：" + f.name); } });
+        setStatus("上传中...", "saving");
+        uploadImgs(files, function (paths) {
+          if (paths.length) {
+            Array.prototype.push.apply(item.imgs, paths);
+            setStatus("已添加 " + paths.length + " 张 ✓ 记得点保存", "ok");
+          } else { setStatus("没有图片添加成功", "err"); }
+          renderEditor();
+        });
+      });
+      input.click();
+    });
+  });
+
+  document.querySelectorAll(".img-thumb .x").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      var i = parseInt(b.getAttribute("data-i"));
+      var kk = parseInt(b.getAttribute("data-k"));
+      var item = c[k][i];
+      if (!item.imgs) item.imgs = (item.img ? [item.img] : []);
+      item.imgs.splice(kk, 1);
+      if (!item.imgs.length) delete item.img;
+      renderEditor();
+    });
+  });
+
+  document.querySelectorAll(".img-thumb .mv-l, .img-thumb .mv-r").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      var i = parseInt(b.getAttribute("data-i"));
+      var kk = parseInt(b.getAttribute("data-k"));
+      var item = c[k][i];
+      if (!item.imgs) item.imgs = (item.img ? [item.img] : []);
+      var j = kk + (b.classList.contains("mv-r") ? 1 : -1);
+      if (j < 0 || j >= item.imgs.length) return;
+      var tmp = item.imgs[kk]; item.imgs[kk] = item.imgs[j]; item.imgs[j] = tmp;
+      renderEditor();
+    });
+  });
+
+  document.querySelectorAll(".up-bg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      if (!c.bg) c.bg = {};
+      uploadImg(function (path) {
+        c.bg[k] = path;
+        renderEditor();
+      });
+    });
+  });
+
+  document.querySelectorAll(".rm-bg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-key");
+      if (c.bg) delete c.bg[k];
+      renderEditor();
+    });
+  });
+}
+
+/* ---------- 图片上传（base64 -> /api/upload） ---------- */
+function uploadImg(cb) {
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", function () {
+    var f = input.files[0];
+    if (!f) return;
+    if (f.size > 8 * 1024 * 1024) { alert("图片超过 8MB"); return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var data64 = rd.result.split(",")[1];
+      setStatus("上传中...", "saving");
+      fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: f.name, data64: data64 })
+      }).then(function (r) { return r.json(); }).then(function (obj) {
+        if (!obj.ok) { setStatus("上传失败: " + obj.error, "err"); alert(obj.error); return; }
+        setStatus("图片已上传", "ok");
+        cb(obj.path);
+      }).catch(function () { setStatus("上传失败", "err"); });
+    };
+    rd.readAsDataURL(f);
+  });
+  input.click();
+}
+
+/* 批量上传多张图（条目多图用），依次上传后回调路径数组 */
+function uploadImgs(files, cb) {
+  var paths = [];
+  var idx = 0;
+  function next() {
+    if (idx >= files.length) { cb(paths); return; }
+    var f = files[idx];
+    idx++;
+    if (f.size > 8 * 1024 * 1024) { next(); return; }   // 超限跳过
+    var rd = new FileReader();
+    rd.onload = function () {
+      fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: f.name, data64: rd.result.split(",")[1] })
+      }).then(function (r) { return r.json(); }).then(function (obj) {
+        if (obj.ok) paths.push(obj.path);
+        next();
+      }).catch(function () { next(); });
+    };
+    rd.readAsDataURL(f);
+  }
+  next();
+}
+
+/* ---------- 拖拽上传：把图片拖到条目卡片上，松手自动加入该条目 ---------- */
+function setupDragDrop() {
+  var editor = document.getElementById("editor");
+  if (!editor) return;
+  var overCard = null;
+
+  function showHint(card, on) {
+    var hint = card.querySelector(".drag-hint");
+    if (!hint) {
+      hint = document.createElement("div");
+      hint.className = "drag-hint";
+      hint.textContent = "松手添加图片";
+      card.appendChild(hint);
+    }
+    hint.style.display = on ? "flex" : "none";
+  }
+  function clearOver() {
+    if (overCard) {
+      overCard.classList.remove("drag-over");
+      showHint(overCard, false);
+      overCard = null;
+    }
+  }
+
+  editor.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    var card = e.target.closest ? e.target.closest(".card") : null;
+    if (card && card !== overCard) {
+      clearOver();
+      overCard = card;
+      card.classList.add("drag-over");
+      showHint(card, true);
+    }
+  });
+  editor.addEventListener("dragleave", function (e) {
+    if (!editor.contains(e.relatedTarget)) clearOver();
+  });
+  editor.addEventListener("drop", function (e) {
+    e.preventDefault();
+    clearOver();
+    var card = e.target.closest ? e.target.closest(".card") : null;
+    if (!card) return;
+    var k = card.getAttribute("data-key");
+    var i = parseInt(card.getAttribute("data-i"));
+    var item = cities[current][k][i];
+    if (!item) return;
+    if (!item.imgs) item.imgs = [];
+    if (!item.imgs.length && item.img) item.imgs = [item.img];
+    var remain = 3 - item.imgs.length;
+    if (remain <= 0) { alert("每条内容最多 3 张图片"); return; }
+    var files = Array.prototype.slice.call(e.dataTransfer.files || []);
+    if (!files.length) return;
+    var imgs = files.filter(function (f) { return /^image\//.test(f.type); }).slice(0, remain);
+    var skipped = files.length - imgs.length;
+    if (!imgs.length) { setStatus("请拖入图片文件", "err"); return; }
+    setStatus("上传中...", "saving");
+    uploadImgs(imgs, function (paths) {
+      if (paths.length) {
+        Array.prototype.push.apply(item.imgs, paths);
+        setStatus("已拖入添加 " + paths.length + " 张 ✓ 记得点保存" + (skipped ? "（跳过 " + skipped + " 张非图片/超限）" : ""), "ok");
+      } else {
+        setStatus("没有图片添加成功", "err");
+      }
+      renderEditor();
+    });
+  });
+}
+
+/* ---------- 保存 ---------- */
+function normalizeBeforeSave() {
+  cities.forEach(function (c) {
+    ["scenery", "food", "story"].forEach(function (k) {
+      (c[k] || []).forEach(function (item) {
+        if (item.imgs) {
+          item.imgs = item.imgs.filter(Boolean);
+          delete item.img;                 // 有 imgs 时不再保留旧 img 字段
+          if (!item.imgs.length) delete item.imgs;   // 一张都没有则字段也不留
+        } else if (item.img) {
+          item.imgs = [item.img];          // 旧单图自动迁移为多图数组
+          delete item.img;
+        }
+      });
+    });
+  });
+}
+function saveAll() {
+  setStatus("保存中...", "saving");
+  normalizeBeforeSave();
+  fetch("/api/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: cities })
+  }).then(function (r) { return r.json(); }).then(function (obj) {
+    if (!obj.ok) { setStatus(obj.error, "err"); alert("保存失败：" + obj.error); return; }
+    setStatus("已保存 ✓ 前台刷新即生效", "ok");
+  }).catch(function () { setStatus("保存失败：服务未连接", "err"); });
+}
+document.getElementById("saveBtn").addEventListener("click", saveAll);
+
+setupDragDrop();
+load();
+</script>
+</body>
+</html>

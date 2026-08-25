@@ -1,0 +1,535 @@
+/* ===== 云游江苏 样式（UI 重构版 · 深色水墨 + 暖金） ===== */
+
+/* ===== 设计 Token ===== */
+:root {
+  /* 墨色背景层 */
+  --ink-900: #0a1116;   /* 页面最深底 */
+  --ink-800: #10202c;   /* 中层 */
+  --ink-700: #162a3a;   /* 浅层 / 渐变 */
+  /* 表面（卡片 / 面板） */
+  --surface: rgba(24, 42, 56, 0.6);
+  --surface-strong: rgba(10, 24, 38, 0.92);
+  /* 主色 · 水墨青 */
+  --teal: #6fb8d8;
+  --teal-soft: rgba(111, 184, 216, 0.35);
+  --teal-border: rgba(111, 184, 216, 0.42);
+  /* 强调 · 暖金 */
+  --gold: #e0bf85;
+  --gold-soft: rgba(224, 191, 133, 0.5);
+  /* 辅助 · 茶色 */
+  --tea: #b08a5e;
+  /* 文字色阶 */
+  --text: #f2ead9;      /* 主文字 · 米白 */
+  --text-2: #aebcc8;    /* 次文字 */
+  --text-3: #74828e;    /* 弱文字 / 说明 */
+  /* 语义色（降饱和，融入水墨） */
+  --ok: #6fbf9a;
+  --warn: #dda45c;
+  --err: #cf7a6c;
+  /* 字号刻度（8px 基线） */
+  --fs-12: 12px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+  --fs-40: 40px;
+  --fs-48: 48px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--ink-900);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 视图切换（!important 压过 #viewMap 等的 ID 级 display 设置） ===== */
+.view { display: none !important; }
+.view.active { display: block !important; }
+.view.active#viewMap, .view.active#viewCity { display: flex !important; }
+
+/* ===== 字体：马善政毛笔楷书（免费商用，仅作品牌字） ===== */
+@font-face {
+  font-family: "MaShanZheng";
+  src: url("fonts/MaShanZheng.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* ===== 主菜单（水墨江南 · 明亮版） ===== */
+#viewMenu { height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
+#bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 22%, rgba(92, 132, 152, 0.42) 0%, transparent 55%),
+    linear-gradient(to bottom, #1f3544 0%, #142833 45%, #0d1c26 100%);
+}
+#bg::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(120, 170, 150, 0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 85%, rgba(214, 178, 124, 0.14) 0%, transparent 50%);
+}
+#bgLeft, #bgRight {
+  position: fixed; top: 0; bottom: 0;
+  width: 58%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease, filter 0.9s ease;
+  filter: saturate(0.92) brightness(0.96);
+}
+#bgLeft.loaded, #bgRight.loaded { opacity: 0.85; }
+#bgLeft {
+  left: -10%;
+  background-image: url("bg/landscape.jpg");
+  background-position: 45% center;
+  -webkit-mask-image: linear-gradient(to right, #000 58%, transparent 100%);
+          mask-image: linear-gradient(to right, #000 58%, transparent 100%);
+}
+#bgRight {
+  right: -6%;
+  background-image: url("bg/food.jpg");
+  background-position: 55% center;
+  -webkit-mask-image: linear-gradient(to left, #000 58%, transparent 100%);
+          mask-image: linear-gradient(to left, #000 58%, transparent 100%);
+}
+#stars { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.6; }
+
+/* 中央内容区 */
+#menu {
+  position: relative; z-index: 5; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(18px, 3.5vh, 34px);
+  padding: 0 20px;
+}
+#logo { text-align: center; user-select: none; animation: logoIn 1.1s ease-out both; }
+#logo h1 {
+  font-family: "MaShanZheng", "KaiTi", "STKaiti", "楷体", serif;
+  font-size: clamp(3.4rem, 10vw, 7.6rem);
+  letter-spacing: 0.16em; text-indent: 0.16em;
+  font-weight: normal;
+  color: var(--text);
+  text-shadow:
+    0 0 14px rgba(255, 244, 214, 0.5),
+    0 0 44px rgba(200, 160, 96, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.55);
+}
+#logo .en {
+  margin-top: 12px;
+  font-size: clamp(0.82rem, 2vw, 1.25rem);
+  letter-spacing: 0.42em; text-indent: 0.42em;
+  color: var(--text-2);
+  text-shadow: 0 0 10px rgba(140, 190, 220, 0.4);
+}
+/* 标题与按钮之间的装饰分隔 */
+#logo::after {
+  content: ''; display: block;
+  width: min(220px, 40vw); height: 1px; margin: 26px auto 0;
+  background: linear-gradient(to right, transparent, var(--gold-soft), transparent);
+}
+@keyframes logoIn {
+  from { opacity: 0; transform: translateY(18px) scale(1.04); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* 按钮区 */
+#buttons { display: flex; flex-direction: column; gap: 14px; width: min(300px, 70vw); }
+.btn {
+  display: block; width: 100%; padding: 14px 0;
+  font-size: clamp(0.92rem, 2.2vw, 1.1rem);
+  font-weight: 600; letter-spacing: 0.42em; text-indent: 0.42em;
+  color: var(--text); text-align: center; text-decoration: none;
+  background: rgba(20, 40, 56, 0.42);
+  border: 1px solid var(--teal-border);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+  animation: btnIn 0.55s ease-out both;
+  position: relative; overflow: hidden;
+}
+.btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 244, 214, 0.12) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+.btn:hover::before, .btn:focus-visible::before { transform: translateX(100%); }
+.btn:nth-child(1) { animation-delay: 0.2s; }
+.btn:nth-child(2) { animation-delay: 0.38s; }
+@keyframes btnIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.btn:hover, .btn:focus-visible {
+  background: rgba(46, 96, 130, 0.55);
+  border-color: var(--gold-soft);
+  color: #fff;
+  box-shadow: 0 0 22px rgba(120, 150, 170, 0.4), inset 0 0 14px rgba(120, 170, 200, 0.2);
+  transform: translateY(-2px);
+  outline: none;
+}
+.btn:active { transform: translateY(0); }
+
+/* 底部信息条 */
+#version {
+  position: fixed; left: 0; right: 0; bottom: 16px; z-index: 2;
+  text-align: center;
+  font-size: var(--fs-12); letter-spacing: 0.22em;
+  color: var(--text-3); user-select: none;
+}
+#version a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-3); }
+#version a:hover { color: var(--text-2); border-bottom-style: solid; }
+
+/* ===== BGM 提示与音乐条 ===== */
+#bgmTip {
+  position: fixed; left: 50%; bottom: 44px; transform: translateX(-50%);
+  z-index: 3;
+  padding: 8px 22px; font-size: var(--fs-14); letter-spacing: 0.15em;
+  color: var(--text);
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 20px; backdrop-filter: blur(4px);
+  cursor: pointer; animation: tipPulse 2s ease-in-out infinite;
+  transition: opacity 0.6s ease;
+}
+@keyframes tipPulse { 0%,100% { opacity: 0.75; } 50% { opacity: 1; } }
+#bgmTip.hidden { opacity: 0; pointer-events: none; }
+
+#musicBar {
+  position: fixed; top: 16px; right: 16px; z-index: 30;
+  display: flex; align-items: center; gap: 10px;
+}
+.musicName {
+  font-size: 13px; letter-spacing: 0.08em;
+  color: var(--text);
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 16px; padding: 6px 14px;
+  backdrop-filter: blur(4px); user-select: none;
+}
+.musicName:hover { background: rgba(46, 96, 130, 0.5); border-color: var(--gold-soft); }
+#musicBtn {
+  width: 46px; height: 32px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.05em;
+  color: var(--text);
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 16px; backdrop-filter: blur(4px);
+  cursor: pointer; transition: all 0.25s ease;
+}
+#musicBtn:hover { background: rgba(46, 96, 130, 0.55); border-color: var(--gold-soft); box-shadow: 0 0 12px rgba(120, 160, 190, 0.5); }
+#musicBtn.off { color: var(--text-3); background: rgba(30, 35, 45, 0.5); border-color: rgba(150, 165, 180, 0.3); }
+
+/* ===== 选歌面板 ===== */
+#songPicker {
+  position: fixed; z-index: 99;
+  min-width: 190px; max-width: 260px;
+  padding: 8px;
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.song-pick-item {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 12px; margin-bottom: 4px;
+  font-size: 13px; letter-spacing: 0.05em;
+  color: var(--text);
+  background: rgba(16, 38, 56, 0.6);
+  border: 1px solid var(--teal-soft);
+  border-radius: 8px; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.song-pick-item:last-child { margin-bottom: 0; }
+.song-pick-item:hover { background: rgba(46, 96, 130, 0.55); }
+.song-pick-item.active {
+  background: rgba(56, 120, 160, 0.6);
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 10px rgba(120, 160, 190, 0.4);
+}
+
+/* ===== 顶部栏（地图/城市/关于视图共用） ===== */
+#topBar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--surface-strong);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--teal-border);
+}
+#topBar button, #topBar #musicBar { position: static; }
+#topBar #musicBar { display: flex; }
+#backBtn, #backBtn2, #backBtn3 {
+  padding: 8px 18px; font-size: var(--fs-14); font-weight: 700; letter-spacing: 0.1em;
+  color: var(--text); text-decoration: none;
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 18px; cursor: pointer; transition: all 0.25s ease;
+}
+#backBtn:hover, #backBtn2:hover, #backBtn3:hover { background: rgba(46, 96, 130, 0.55); box-shadow: 0 0 12px rgba(120, 160, 190, 0.5); }
+#mapHint, #cityTitle, #aboutTitle {
+  font-size: var(--fs-14); letter-spacing: 0.1em;
+  color: var(--text-2);
+}
+
+/* ===== 地图视图 ===== */
+#viewMap { height: 100vh; height: 100dvh; flex-direction: column; background: var(--ink-900); overflow: hidden; }
+#mapWrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 24px; padding: 20px 40px;
+}
+#jsMap { width: min(78vw, 720px); height: auto; display: block; }
+
+/* ===== 市级边界区域 ===== */
+.region { cursor: pointer; }
+.region path { transition: fill 0.25s ease; }
+.region:hover path { fill: #2b4a66; }
+/* 未开通城市：灰色锁定态，无 hover 反馈 */
+.region.locked path { fill: #3a4048; stroke: rgba(160,170,180,0.35); }
+.region.locked:hover path { fill: #3a4048; }
+/* ===== 顶层城市标签 ===== */
+.region-label-g { cursor: pointer; }
+.region-label-g:hover rect { fill: rgba(43, 74, 102, 0.92); }
+.region-label-g.locked { cursor: not-allowed; }
+.region-label-g.locked rect { fill: rgba(28, 32, 38, 0.9); stroke: rgba(150,158,168,0.35); }
+.region-label-g.locked:hover rect { fill: rgba(28, 32, 38, 0.9); }
+.region-label-g.locked .region-label { fill: #7c838c; }
+.region-label {
+  fill: #eaf4f7; font-size: 13px; letter-spacing: 1px;
+  font-weight: 700; pointer-events: none;
+}
+
+#cityList {
+  width: 190px; padding: 14px 16px;
+  background: var(--surface-strong);
+  border: 1px solid var(--teal-border);
+  border-radius: 12px; backdrop-filter: blur(6px);
+}
+.list-title { font-size: 13px; font-weight: 700; letter-spacing: 0.2em; color: var(--text); margin-bottom: 10px; }
+#cityListBtns { display: flex; flex-direction: column; gap: 6px; max-height: 380px; overflow-y: auto; }
+.city-li {
+  padding: 7px 12px; font-size: 13px; letter-spacing: 0.15em;
+  color: var(--text-2); text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--teal-soft);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+}
+.city-li:hover { background: rgba(46, 96, 130, 0.55); border-color: var(--gold-soft); color: var(--text); }
+.city-li.locked { background: rgba(40, 44, 50, 0.6); border-color: rgba(140,150,160,0.28); color: var(--text-3); cursor: not-allowed; }
+.city-li.locked:hover { background: rgba(40, 44, 50, 0.6); border-color: rgba(140,150,160,0.28); color: var(--text-3); }
+.list-note { margin-top: 12px; font-size: var(--fs-12); line-height: 1.6; color: var(--text-3); }
+
+/* 未开通城市提示 toast */
+#toast {
+  position: fixed; left: 50%; bottom: 9vh;
+  transform: translate(-50%, 16px);
+  background: rgba(10, 18, 28, 0.94);
+  border: 1px solid rgba(255, 205, 130, 0.55);
+  color: #f5e9d8;
+  font-size: 14px; letter-spacing: 0.06em;
+  padding: 11px 22px; border-radius: 999px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 999;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ===== 城市详情视图（头部固定，内容区内部滚动） ===== */
+#viewCity { height: 100vh; height: 100dvh; flex-direction: column; background: var(--ink-900); overflow: hidden; }
+#cityBody {
+  flex: 1; overflow-y: auto;
+  width: 100%; max-width: 820px;
+  margin: 0 auto; padding: 20px 20px 70px;
+}
+#cityHero { text-align: center; padding: 20px 0 26px; }
+#heroName {
+  font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; letter-spacing: 0.18em;
+  color: var(--text); text-shadow: 0 0 18px rgba(160, 200, 220, 0.6), 0 0 50px rgba(120, 150, 170, 0.35);
+}
+#heroTag { margin-top: 12px; font-size: var(--fs-16); letter-spacing: 0.12em; color: var(--text-2); }
+
+#tabBar {
+  display: flex; gap: 10px; justify-content: center;
+  margin: 10px 0 30px;
+}
+.tab-btn {
+  padding: 10px 26px; font-size: var(--fs-14); font-weight: 700; letter-spacing: 0.2em;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--teal-soft);
+  border-radius: 24px; cursor: pointer; transition: all 0.25s ease;
+}
+.tab-btn:hover { background: rgba(46, 96, 130, 0.45); color: var(--text); }
+.tab-btn.active {
+  color: #fff;
+  background: rgba(56, 120, 160, 0.6);
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 14px rgba(120, 160, 190, 0.4);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--teal-soft);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  animation: cardIn 0.4s ease-out both;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.card h3 { font-size: var(--fs-20); font-weight: 700; letter-spacing: 0.08em; color: var(--teal); margin-bottom: 8px; }
+.card .card-img { margin: 4px 0 10px; position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; border: 1px solid var(--teal-soft); }
+.card .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 多图画廊：箭头 + 圆点 */
+.g-prev, .g-next {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid rgba(190,225,255,0.45); background: rgba(6,18,34,0.55);
+  color: #eaf4f7; font-size: 18px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease;
+}
+.g-prev:hover, .g-next:hover { background: rgba(43,74,102,0.85); }
+.g-prev { left: 8px; }
+.g-next { right: 8px; }
+.g-dots {
+  position: absolute; bottom: 8px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 6px;
+}
+.g-dots .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(220,240,255,0.4); transition: background 0.2s ease; }
+.g-dots .dot.active { background: #ffd98a; }
+.card p { font-size: var(--fs-16); line-height: 1.9; color: var(--text); }
+
+#tabContent { min-height: 120px; }
+#tabContent.has-bg {
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid var(--teal-soft);
+}
+.empty-tip {
+  text-align: center; padding: 60px 20px;
+  font-size: var(--fs-14); letter-spacing: 0.15em; color: var(--text-3);
+}
+.tab-loading {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 200px;
+  font-size: var(--fs-14); letter-spacing: 0.2em; color: var(--text-2);
+}
+.tab-loading .spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--teal-soft);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== 关于视图 ===== */
+#viewAbout { min-height: 100vh; min-height: 100dvh; height: 100dvh; background: var(--ink-900); }
+#aboutBody { max-width: 720px; margin: 0 auto; padding: 34px 24px 80px; }
+#aboutBody h2 {
+  font-size: var(--fs-32); font-weight: 900; letter-spacing: 0.15em; color: var(--text);
+  text-shadow: 0 0 18px rgba(160, 200, 220, 0.5);
+  text-align: center; margin-bottom: 22px;
+}
+#aboutBody h3 { font-size: var(--fs-16); font-weight: 700; letter-spacing: 0.1em; color: var(--teal); margin: 26px 0 10px; }
+.about-p { font-size: var(--fs-16); line-height: 2; color: var(--text); text-indent: 2em; }
+#aboutEnd { text-align: center; margin-top: 46px; font-size: 13px; letter-spacing: 0.2em; color: var(--text-3); }
+
+/* ===== 移动优先适配 ===== */
+/* 平板及以下（≤992px） */
+@media (max-width: 992px) {
+  #bgLeft, #bgRight { width: 50%; }
+  #mapWrap { gap: 16px; padding: 16px 24px; }
+}
+
+/* 手机（<768px）主适配 */
+@media (max-width: 768px) {
+  /* 顶栏精简：BGM 歌名收起、只留按钮 */
+  #topBar { padding: 10px 12px; }
+  .musicName { display: none; }
+  #musicBar { gap: 6px; }
+  #backBtn, #backBtn2, #backBtn3 { padding: 10px 14px; font-size: var(--fs-12); letter-spacing: 0.06em; }
+  #mapHint, #cityTitle, #aboutTitle { font-size: var(--fs-12); letter-spacing: 0.05em; }
+
+  /* 主界面：单列 + 只用左侧山水作氛围背景 */
+  #bgLeft, #bgRight { width: 100%; }
+  #bgLeft.loaded { opacity: 0.5; }
+  #bgRight.loaded { opacity: 0; }
+  #bgLeft { left: 0; -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+                   mask-image: linear-gradient(to bottom, #000 40%, transparent 100%); }
+  #logo h1 { font-size: clamp(2.4rem, 13vw, 4rem); }
+  #logo .en { letter-spacing: 0.22em; text-indent: 0.22em; }
+  #buttons { width: min(320px, 86vw); gap: 12px; }
+  .btn { padding: 16px 0; }
+
+  /* 地图页：纵向 + 城市列表改底部横向胶囊 */
+  #mapWrap { flex-direction: column; gap: 12px; padding: 12px; }
+  #jsMap { width: min(96vw, 520px); }
+  #cityList { width: 100%; padding: 10px 12px; border-radius: 14px; }
+  .list-title { display: none; }
+  #cityListBtns { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 8px; max-height: none; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .city-li { flex: 0 0 auto; padding: 10px 16px; white-space: nowrap; }
+  .list-note { display: none; }
+
+  /* 城市页：三栏 tab 可横滑 + 卡片单列紧凑 */
+  #cityBody { padding: 16px 14px 60px; }
+  #cityHero { padding: 14px 0 18px; }
+  #heroTag { font-size: var(--fs-14); }
+  #tabBar { gap: 8px; margin: 8px 0 20px; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
+  .tab-btn { flex: 0 0 auto; padding: 12px 20px; }
+  .card { padding: 16px; }
+  .card h3 { font-size: var(--fs-16); }
+  .card p { font-size: 15px; }
+  .card .card-img { aspect-ratio: 16 / 9; }
+
+  /* 关于 */
+  #aboutBody { padding: 24px 18px 60px; }
+  #aboutBody h2 { font-size: var(--fs-24); }
+}
+
+/* 小手机（<576px）微调 */
+@media (max-width: 576px) {
+  #logo h1 { font-size: clamp(2.2rem, 12vw, 3.2rem); }
+  .btn { letter-spacing: 0.3em; text-indent: 0.3em; }
+  #version { font-size: 11px; letter-spacing: 0.15em; }
+}
+
+/* 触控目标 ≥44px（仅触摸设备，不影响桌面 hover） */
+@media (pointer: coarse) {
+  .btn, .tab-btn, .city-li, #backBtn, #backBtn2, #backBtn3, #musicBtn, .musicName {
+    min-height: 44px;
+  }
+  #musicBtn { width: 44px; }
+}
+
+/* 刘海屏安全区 */
+@supports (padding: max(0px)) {
+  #topBar { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  #musicBar { top: max(16px, env(safe-area-inset-top)); }
+  #version { bottom: max(16px, env(safe-area-inset-bottom)); }
+}
+
+/* ===== 焦点可见（键盘导航，WCAG 2.2） ===== */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ===== 减少动态偏好（无障碍） ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

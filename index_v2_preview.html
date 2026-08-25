@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云游江苏 · 主界面升级预览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #050a14; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; overflow-x: hidden; }
+
+  @font-face {
+    font-family: "MaShanZheng";
+    src: url("fonts/MaShanZheng.ttf") format("truetype");
+    font-display: swap;
+  }
+
+  /* ===== 首屏：全屏主视觉 ===== */
+  .hero {
+    position: relative; width: 100%; height: 100vh; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-bg {
+    position: absolute; inset: -4%;
+    background-image: url("bg/zjs_hero.jpg");
+    background-size: cover; background-position: center 62%;
+    transform: scale(1.08);
+    animation: heroZoom 3.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform;
+  }
+  @keyframes heroZoom { to { transform: scale(1); } }
+
+  /* 遮罩：上下压暗，中间略透，保证文字可读 */
+  .hero-veil {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(4, 10, 20, 0.62) 0%, rgba(4, 10, 20, 0.18) 30%, rgba(4, 10, 20, 0.12) 52%, rgba(4, 10, 20, 0.55) 82%, rgba(4, 10, 20, 0.88) 100%),
+      radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.42) 100%);
+  }
+  /* 微尘颗粒（一层极淡的漂浮光点，增强层次） */
+  .dust {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+  }
+
+  /* 顶部：音乐条 + 素材切换 */
+  .topright {
+    position: absolute; top: 16px; right: 16px; z-index: 10;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pill {
+    font-size: 13px; letter-spacing: 0.08em;
+    color: rgba(230, 244, 255, 0.92);
+    background: rgba(8, 22, 40, 0.5);
+    border: 1px solid rgba(150, 205, 250, 0.4);
+    border-radius: 16px; padding: 6px 14px;
+    backdrop-filter: blur(6px); user-select: none;
+  }
+  .switcher { display: flex; gap: 6px; }
+  .switcher button {
+    font-size: 12px; letter-spacing: 0.1em; cursor: pointer;
+    color: rgba(210, 235, 255, 0.85);
+    background: rgba(8, 22, 40, 0.5);
+    border: 1px solid rgba(150, 205, 250, 0.35);
+    border-radius: 14px; padding: 5px 12px;
+    backdrop-filter: blur(6px);
+    transition: all 0.25s ease;
+  }
+  .switcher button.active, .switcher button:hover {
+    background: rgba(60, 140, 220, 0.6);
+    border-color: rgba(190, 235, 255, 0.95);
+    box-shadow: 0 0 12px rgba(90, 180, 255, 0.5);
+  }
+
+  /* 中央内容 */
+  .center {
+    position: relative; z-index: 6; text-align: center;
+    padding: 0 24px; max-width: 1100px;
+  }
+  .center h1 {
+    font-family: "MaShanZheng", "KaiTi", "STKaiti", serif;
+    font-weight: normal;
+    font-size: clamp(4.2rem, 13vw, 10rem);
+    letter-spacing: 0.14em; text-indent: 0.14em;
+    color: #fdf6e3;
+    text-shadow:
+      0 0 22px rgba(255, 244, 210, 0.55),
+      0 0 70px rgba(210, 160, 90, 0.55),
+      0 4px 14px rgba(0, 0, 0, 0.7);
+    animation: fadeUp 1s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .center .en {
+    margin-top: 14px;
+    font-size: clamp(0.8rem, 2vw, 1.2rem);
+    letter-spacing: 0.5em; text-indent: 0.5em;
+    color: rgba(224, 240, 255, 0.85);
+    text-shadow: 0 0 14px rgba(120, 195, 255, 0.5);
+    animation: fadeUp 1s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .center .divider {
+    width: min(260px, 44vw); height: 1px; margin: 30px auto 0;
+    background: linear-gradient(to right, transparent, rgba(255, 235, 190, 0.7), transparent);
+    animation: fadeUp 1s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .center .tagline {
+    margin-top: 18px;
+    font-size: clamp(0.78rem, 1.8vw, 1rem);
+    letter-spacing: 0.4em; text-indent: 0.4em;
+    color: rgba(255, 240, 205, 0.75);
+    animation: fadeUp 1s 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .btns {
+    margin-top: clamp(30px, 6vh, 54px);
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  }
+  .btn {
+    min-width: 210px; padding: 15px 34px;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    font-weight: 700; letter-spacing: 0.4em; text-indent: 0.4em;
+    text-decoration: none; text-align: center;
+    border-radius: 40px; cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .btn.primary {
+    color: #0c2436;
+    background: linear-gradient(135deg, #ffd98a 0%, #f2b65c 100%);
+    border: 1px solid rgba(255, 230, 180, 0.9);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35), 0 0 26px rgba(255, 200, 110, 0.35);
+  }
+  .btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), 0 0 44px rgba(255, 215, 130, 0.55);
+  }
+  .btn.ghost {
+    color: rgba(235, 246, 255, 0.95);
+    background: rgba(10, 28, 50, 0.42);
+    border: 1px solid rgba(170, 215, 255, 0.55);
+    backdrop-filter: blur(8px);
+  }
+  .btn.ghost:hover {
+    background: rgba(40, 110, 190, 0.5);
+    border-color: rgba(200, 238, 255, 0.95);
+    box-shadow: 0 0 26px rgba(90, 180, 255, 0.5);
+    transform: translateY(-3px);
+  }
+  .btns .btn:nth-child(1) { animation-delay: 0.7s; }
+  .btns .btn:nth-child(2) { animation-delay: 0.85s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(26px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+
+  /* 滚动提示 */
+  .scroll-hint {
+    position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%);
+    z-index: 8; text-align: center;
+    font-size: 12px; letter-spacing: 0.35em; text-indent: 0.35em;
+    color: rgba(220, 240, 255, 0.75);
+    animation: hintFloat 2.2s ease-in-out infinite;
+  }
+  .scroll-hint .arrow { display: block; margin-top: 6px; font-size: 18px; }
+  @keyframes hintFloat { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+
+  /* 底部版本行 */
+  .version {
+    position: absolute; left: 0; right: 0; bottom: 16px; z-index: 8;
+    text-align: center; font-size: 12px; letter-spacing: 0.22em;
+    color: rgba(185, 212, 238, 0.6); user-select: none;
+  }
+  .version a { color: inherit; text-decoration: none; border-bottom: 1px dotted rgba(185, 212, 238, 0.5); }
+
+  /* 下方说明区 */
+  .note {
+    background: #050a14; color: rgba(215, 235, 252, 0.85);
+    padding: 40px 24px 60px; text-align: center;
+    font-size: 14px; line-height: 2; letter-spacing: 0.05em;
+  }
+  .note b { color: #ffd98a; }
+  .note .kbd {
+    display: inline-block; padding: 2px 10px; margin: 0 4px;
+    font-size: 12px; color: #0c2436; background: #ffd98a; border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 首屏 ===== -->
+<div class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-veil"></div>
+  <canvas class="dust" id="dust"></canvas>
+
+  <div class="topright">
+    <div class="switcher">
+      <button type="button" class="active" data-img="bg/zjs_hero.jpg">中山陵 · 紫金山</button>
+      <button type="button" data-img="bg/xwh_hero.jpg">玄武湖 · 日落</button>
+    </div>
+    <div class="pill">♪ 开</div>
+  </div>
+
+  <div class="center">
+    <h1>云游江苏</h1>
+    <p class="en">YUNYOU JIANGSU · 把山水与味道讲给你听</p>
+    <div class="divider"></div>
+    <p class="tagline">十 三 城 · 一 屏 山 河</p>
+    <div class="btns">
+      <a class="btn primary" href="#">地 图 云 游</a>
+      <a class="btn ghost" href="#">关 于 本 站</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">滚 动 探 索<span class="arrow">↓</span></div>
+  <div class="version">v0.3.0 · 地理师范生团队 · 2026 省赛创意组 &nbsp;·&nbsp; <a href="#">关于本站与资源说明</a></div>
+</div>
+
+<!-- ===== 说明 ===== -->
+<div class="note">
+  <b>这是主界面升级预览</b>（不占线上文件，只做效果确认）<br>
+  全屏真实地标大片开场 + 超大书法标题 + 一次性揭幕动效<br>
+  右上角可切换 <span class="kbd">中山陵</span> / <span class="kbd">玄武湖</span> 两张主视觉对比<br>
+  确认方向后，我会把它合入正式首页 —— 地图云游 / 城市详情 / BGM / 关于本站等功能全部保留
+</div>
+
+<script>
+  // 背景切换
+  var heroBg = document.getElementById('heroBg');
+  document.querySelectorAll('.switcher button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.switcher button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      heroBg.style.backgroundImage = 'url("' + btn.getAttribute('data-img') + '")';
+      heroBg.style.animation = 'none';
+      void heroBg.offsetWidth;
+      heroBg.style.animation = 'heroZoom 3.2s cubic-bezier(0.22, 1, 0.36, 1) both';
+    });
+  });
+
+  // 极淡浮尘粒子
+  var cv = document.getElementById('dust'), ctx = cv.getContext('2d');
+  var W, H, pts = [];
+  function size() {
+    W = cv.width = heroBg.offsetWidth; H = cv.height = heroBg.offsetHeight;
+    pts = Array.from({ length: 36 }, function () {
+      return { x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.6 + 0.4, s: Math.random() * 0.25 + 0.06, o: Math.random() * 0.5 + 0.1 };
+    });
+  }
+  size(); window.addEventListener('resize', size);
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(function (p) {
+      p.y -= p.s; if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = 'rgba(255, 240, 210, ' + p.o + ')';
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{
+  "scenery_0": {
+    "key": "scenery_0",
+    "label": "紫金山",
+    "alt": "Aerial view of the Sun Yat-sen Mausoleum in Nanjing with tourists exploring the scenic park.",
+    "photographer": "Mehmet Turgut  Kirkgoz (Pexels)",
+    "page": "https://www.pexels.com/photo/the-sun-yat-sen-mausoleum-in-purple-mountain-nanjing-china-11765545/",
+    "url": "https://images.pexels.com/photos/11765545/pexels-photo-11765545.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 4256,
+    "h": 2832,
+    "rel": "images/nanjing_pexels/scenery_0.jpg",
+    "score": 2
+  },
+  "scenery_1": {
+    "key": "scenery_1",
+    "label": "玄武湖",
+    "alt": "Serene view of Xuanwu Lake in Nanjing, China during spring, featuring calm waters and surrounding trees.",
+    "photographer": "Garrison Gao (Pexels)",
+    "page": "https://www.pexels.com/photo/tranquil-view-of-nanjing-s-xuanwu-lake-in-spring-36354908/",
+    "url": "https://images.pexels.com/photos/36354908/pexels-photo-36354908.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 4157,
+    "h": 6236,
+    "rel": "images/nanjing_pexels/scenery_1.jpg",
+    "score": 1
+  },
+  "scenery_2": {
+    "key": "scenery_2",
+    "label": "明城墙·秦淮河",
+    "alt": "A peaceful, wet cobblestone path alongside an ancient wall in Nanjing, China.",
+    "photographer": "Garrison Gao (Pexels)",
+    "page": "https://www.pexels.com/photo/serene-cobbled-pathway-by-ancient-wall-in-nanjing-36354915/",
+    "url": "https://images.pexels.com/photos/36354915/pexels-photo-36354915.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 4132,
+    "h": 6197,
+    "rel": "images/nanjing_pexels/scenery_2.jpg",
+    "score": 1
+  },
+  "food_0": {
+    "key": "food_0",
+    "label": "鸭血粉丝汤",
+    "alt": "Warm noodle soup garnished with herbs and sliced radish in a ceramic bowl.",
+    "photographer": "Cats Coming (Pexels)",
+    "page": "https://www.pexels.com/photo/cooked-noodle-with-garnish-1406501/",
+    "url": "https://images.pexels.com/photos/1406501/pexels-photo-1406501.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 6240,
+    "h": 4160,
+    "rel": "images/nanjing_pexels/food_0.jpg",
+    "score": 2
+  },
+  "food_1": {
+    "key": "food_1",
+    "label": "盐水鸭",
+    "alt": "Halal roasted ducks displayed in an Indonesian restaurant with Chinese characters above.",
+    "photographer": "Ariel Sebasthian (Pexels)",
+    "page": "https://www.pexels.com/photo/five-roasted-ducks-displayed-in-indonesian-restaurant-36117440/",
+    "url": "https://images.pexels.com/photos/36117440/pexels-photo-36117440.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 3024,
+    "h": 4032,
+    "rel": "images/nanjing_pexels/food_1.jpg",
+    "score": 1
+  },
+  "food_2": {
+    "key": "food_2",
+    "label": "赤豆元宵",
+    "alt": "Colorful Taiwanese glutinous rice balls in a playful cat-themed bowl on a white background.",
+    "photographer": "Yi Li (Pexels)",
+    "page": "https://www.pexels.com/photo/soup-with-eggs-in-bowl-17853597/",
+    "url": "https://images.pexels.com/photos/17853597/pexels-photo-17853597.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 2592,
+    "h": 3888,
+    "rel": "images/nanjing_pexels/food_2.jpg",
+    "score": 2
+  },
+  "story_0": {
+    "key": "story_0",
+    "label": "六朝烟水",
+    "alt": "Beautiful night view of a tour boat on Qinhuai River, Nanjing, with illuminated bridge and lanterns.",
+    "photographer": "新宇 王 (Pexels)",
+    "page": "https://www.pexels.com/photo/tourboat-in-nanjing-at-night-20673043/",
+    "url": "https://images.pexels.com/photos/20673043/pexels-photo-20673043.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 4558,
+    "h": 6837,
+    "rel": "images/nanjing_pexels/story_0.jpg",
+    "score": 1
+  },
+  "story_1": {
+    "key": "story_1",
+    "label": "石头城与长江",
+    "alt": "Aerial shot of a long bridge spanning over the Yangtze River with barges.",
+    "photographer": "jason hu (Pexels)",
+    "page": "https://www.pexels.com/photo/aerial-view-of-yangtze-river-bridge-28571678/",
+    "url": "https://images.pexels.com/photos/28571678/pexels-photo-28571678.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+    "w": 5464,
+    "h": 3640,
+    "rel": "images/nanjing_pexels/story_1.jpg",
+    "score": 2
+  }
+}

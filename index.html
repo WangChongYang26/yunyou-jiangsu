@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云游江苏 · 把山水与味道讲给你听</title>
+<link rel="stylesheet" href="yunyou_style.css">
+</head>
+<body>
+
+<!-- ========== 视图1：主菜单 ========== -->
+<div id="viewMenu" class="view active">
+  <div id="bg"></div>
+  <div id="bgLeft"></div>
+  <div id="bgRight"></div>
+  <canvas id="stars"></canvas>
+
+  <div id="menu">
+    <div id="logo">
+      <h1 id="siteTitle">云游江苏</h1>
+      <div class="en" id="siteSubtitle">YUNYOU JIANGSU · 把山水与味道讲给你听</div>
+    </div>
+    <div id="buttons">
+      <a class="btn view-link" data-view="viewMap" href="#">地 图 云 游</a>
+      <a class="btn view-link" data-view="viewAbout" href="#">关 于 本 站</a>
+    </div>
+  </div>
+
+  <div id="version"><span id="versionText">v0.3.0 · 地理师范生团队</span></div>  <div id="bgmTip">点击右上角 ♪ 按钮开启音乐</div>
+
+  <div id="musicBar">
+    <span class="musicName">BGM · Move Up</span>
+    <button id="musicBtn" type="button" aria-pressed="false">♪ 开</button>
+  </div>
+</div>
+
+<!-- ========== 视图2：地图云游（SVG 江苏示意图） ========== -->
+<div id="viewMap" class="view">
+  <div id="topBar">
+    <button id="backBtn" type="button">← 返回</button>
+    <span id="mapHint">点击地图上的城市节点，进入它的风景 / 美食 / 故事</span>
+    <div id="musicBar">
+      <span class="musicName">BGM · Move Up</span>
+      <button id="musicBtn" type="button" aria-pressed="false">♪ 开</button>
+    </div>
+  </div>
+
+  <div id="mapWrap">
+    <svg id="jsMap" viewBox="0 0 680 560" role="img" aria-label="江苏省示意地图，十三个地级市节点可点击">
+      <defs>
+        <radialGradient id="cityGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#7ff0c8" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#7ff0c8" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#123c55"/>
+          <stop offset="100%" stop-color="#0a1f30"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="30" y="30" width="620" height="500" rx="18" fill="url(#water)" stroke="rgba(140,200,255,0.25)"/>
+
+        <g id="grid" stroke="rgba(140,200,255,0.08)" stroke-width="0.5">
+        <line x1="30" y1="130" x2="650" y2="130"/>
+        <line x1="30" y1="230" x2="650" y2="230"/>
+        <line x1="30" y1="330" x2="650" y2="330"/>
+        <line x1="30" y1="430" x2="650" y2="430"/>
+        <line x1="180" y1="30" x2="180" y2="530"/>
+        <line x1="330" y1="30" x2="330" y2="530"/>
+        <line x1="480" y1="30" x2="480" y2="530"/>
+      </g>
+
+      <text x="630" y="60" text-anchor="end" fill="rgba(220,240,255,0.75)" font-size="15" letter-spacing="6">江 苏 省 示 意 图</text>
+      <text x="630" y="84" text-anchor="end" fill="rgba(160,200,235,0.55)" font-size="12" letter-spacing="2">十三个地级市 · 点击城市云游</text>
+
+      <g id="cityRegions"></g>
+    </svg>
+
+    <div id="cityList">
+      <div class="list-title">快速直达</div>
+      <div id="cityListBtns"></div>
+      <div class="list-note">十三城 · 山水与味道，点击开始云游</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 视图3：城市详情 ========== -->
+<div id="viewCity" class="view">
+  <div id="topBar">
+    <button id="backBtn2" type="button">← 返回地图</button>
+    <span id="cityTitle"></span>
+    <div id="musicBar">
+      <span class="musicName">BGM · Move Up</span>
+      <button id="musicBtn" type="button" aria-pressed="false">♪ 开</button>
+    </div>
+  </div>
+
+  <div id="cityBody">
+    <div id="cityHero">
+      <h2 id="heroName"></h2>
+      <p id="heroTag"></p>
+    </div>
+
+    <div id="tabBar" role="tablist" aria-label="城市内容分类">
+      <button class="tab-btn active" data-tab="scenery" type="button" role="tab" aria-selected="true">风 景</button>
+      <button class="tab-btn" data-tab="food" type="button" role="tab" aria-selected="false">美 食</button>
+      <button class="tab-btn" data-tab="story" type="button" role="tab" aria-selected="false">文 化 故 事</button>
+    </div>
+
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<!-- ========== 视图4：关于本站 ========== -->
+<div id="viewAbout" class="view">
+  <div id="topBar">
+    <button id="backBtn3" type="button">← 返回</button>
+    <span id="aboutTitle">关 于 本 站</span>
+    <div id="musicBar">
+      <span class="musicName">BGM · Move Up</span>
+      <button id="musicBtn" type="button" aria-pressed="false">♪ 开</button>
+    </div>
+  </div>
+  <div id="aboutBody">
+    <h2>云游江苏</h2>
+    <p class="about-p">一张会讲地理故事的地图。我们用"水土 → 物产 → 饮食 → 文化"的视角，把江苏十三市的山水、味道与故事串起来——让没时间远行的人，也能在几分钟里云游一座城，得到片刻喘息。</p>
+    <h3>为什么是"地理叙事"？</h3>
+    <p class="about-p">苏州的松鼠鳜鱼为什么鲜？因为太湖的活水。高邮的咸鸭蛋为什么出名？因为湖荡的散养。每一道风味背后都有山水的原因，这就是地理——而我们，是一群学地理、也将成为地理老师的人。</p>
+    <h3>项目信息</h3>
+    <p class="about-p">本项目为"建行杯"江苏大学生创新大赛（2026）高教主赛道 · 本科生创意组参赛项目。网站为纯静态离线实现，无外部地图依赖，数据为团队原创采集整理。</p>
+    <h3>资源与版权说明</h3>
+    <p class="about-p" id="copyrightText" style="white-space:pre-line"></p>
+    <div id="aboutEnd">— 云游江苏 · 把山水与味道讲给你听 —</div>
+  </div>
+</div>
+
+<!-- 背景音乐：全局唯一，跨视图始终存活 -->
+<audio id="bgm" loop preload="auto"></audio>
+
+<!-- 未开通城市提示 -->
+<div id="toast"></div>
+
+<script src="city_data.js"></script>
+<script src="jiangsu_map.js"></script>
+<script src="songs.js"></script>
+<script src="site_config.js"></script>
+<script src="yunyou_script.js"></script>
+</body>
+</html>
