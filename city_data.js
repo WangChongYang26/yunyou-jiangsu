@@ -444,7 +444,7 @@ var __CITY_DATA__ = [
         "t": "汉文化景区",
         "d": "狮子山楚王陵与汉兵马俑在此出土。徐州是汉高祖刘邦故里、两汉文化的发源地之一，地下的汉墓群是这座“东方雅典”的历史胎记。",
         "imgs": [
-          "images/pexels_all/徐州/scenery_1.jpg"
+          "images/xuzhou_han_culture.jpg"
         ]
       },
       {
