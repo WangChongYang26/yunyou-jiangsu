@@ -84,20 +84,17 @@ html, body {
   filter: saturate(0.92) brightness(0.96);
 }
 #bgLeft.loaded, #bgRight.loaded { opacity: 0.85; }
-#bgLeft {
-  left: -10%;
-  background-image: url("bg/landscape.jpg");
-  background-position: 45% center;
-  -webkit-mask-image: linear-gradient(to right, #000 58%, transparent 100%);
-          mask-image: linear-gradient(to right, #000 58%, transparent 100%);
+#bgLeft, #bgRight { display: none; }
+/* 主界面背景：电脑端用第三张左半（水乡古镇），手机端用右半（水天辽阔） */
+#bgSplit {
+  position: fixed; inset: 0; z-index: 1;
+  background: url("bg/main_split_left.jpg") center / cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+  filter: saturate(0.95) brightness(1.02);
 }
-#bgRight {
-  right: -6%;
-  background-image: url("bg/food.jpg");
-  background-position: 55% center;
-  -webkit-mask-image: linear-gradient(to left, #000 58%, transparent 100%);
-          mask-image: linear-gradient(to left, #000 58%, transparent 100%);
-}
+#bgSplit.loaded { opacity: 0.88; }
 #stars { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.6; }
 
 /* 中央内容区 */
@@ -281,7 +278,7 @@ html, body {
 }
 
 /* ===== 地图视图 ===== */
-#viewMap { height: 100vh; height: 100dvh; flex-direction: column; background: var(--ink-900); overflow: hidden; }
+#viewMap { height: 100vh; height: 100dvh; flex-direction: column; background: linear-gradient(to bottom, rgba(13,28,38,0.72) 0%, rgba(13,28,38,0.66) 100%), url("bg/main_desktop.jpg") center / cover no-repeat; overflow: hidden; }
 #mapWrap {
   flex: 1; display: flex; align-items: center; justify-content: center;
   gap: 24px; padding: 20px 40px;
@@ -344,7 +341,7 @@ html, body {
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ===== 城市详情视图（头部固定，内容区内部滚动） ===== */
-#viewCity { height: 100vh; height: 100dvh; flex-direction: column; background: var(--ink-900); overflow: hidden; }
+#viewCity { height: 100vh; height: 100dvh; flex-direction: column; background: linear-gradient(to bottom, rgba(13,28,38,0.72) 0%, rgba(13,28,38,0.66) 100%), url("bg/main_desktop.jpg") center / cover no-repeat; overflow: hidden; }
 #cityBody {
   flex: 1; overflow-y: auto;
   width: 100%; max-width: 820px;
@@ -433,7 +430,7 @@ html, body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ===== 关于视图 ===== */
-#viewAbout { min-height: 100vh; min-height: 100dvh; height: 100dvh; background: var(--ink-900); }
+#viewAbout { min-height: 100vh; min-height: 100dvh; height: 100dvh; background: linear-gradient(to bottom, rgba(13,28,38,0.72) 0%, rgba(13,28,38,0.66) 100%), url("bg/main_desktop.jpg") center / cover no-repeat; }
 #aboutBody { max-width: 720px; margin: 0 auto; padding: 34px 24px 80px; }
 #aboutBody h2 {
   font-size: var(--fs-32); font-weight: 900; letter-spacing: 0.15em; color: var(--text);
@@ -460,12 +457,18 @@ html, body {
   #backBtn, #backBtn2, #backBtn3 { padding: 10px 14px; font-size: var(--fs-12); letter-spacing: 0.06em; }
   #mapHint, #cityTitle, #aboutTitle { font-size: var(--fs-12); letter-spacing: 0.05em; }
 
-  /* 主界面：单列 + 只用左侧山水作氛围背景 */
-  #bgLeft, #bgRight { width: 100%; }
-  #bgLeft.loaded { opacity: 0.5; }
-  #bgRight.loaded { opacity: 0; }
-  #bgLeft { left: 0; -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
-                   mask-image: linear-gradient(to bottom, #000 40%, transparent 100%); }
+  /* 主界面：手机端用第三张右半（水天辽阔） */
+  #bgSplit { background: url("bg/main_split_right.jpg") center 40% / cover no-repeat; opacity: 0.95; }
+  #bg { background:
+    radial-gradient(ellipse at 50% 30%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 100%),
+    linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(13,28,38,0.35) 100%); }
+  /* 中央文字阴影增强可读性 */
+  #logo h1 { text-shadow: 0 2px 14px rgba(0,0,0,0.55); }
+  .btn { box-shadow: 0 2px 12px rgba(0,0,0,0.45); }
+  /* 地图/城市/关于页：手机端换用 main_mobile 背景 */
+  #viewMap, #viewCity, #viewAbout {
+    background: linear-gradient(to bottom, rgba(13,28,38,0.70) 0%, rgba(13,28,38,0.64) 100%), url("bg/main_mobile.jpg") center / cover no-repeat;
+  }
   #logo h1 { font-size: clamp(2.4rem, 13vw, 4rem); }
   #logo .en { letter-spacing: 0.22em; text-indent: 0.22em; }
   #buttons { width: min(320px, 86vw); gap: 12px; }

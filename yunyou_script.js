@@ -55,8 +55,7 @@
 
   /* ---------- 主菜单背景图预加载（加载完成后才淡入，避免边加载边显示） ---------- */
   [
-    { id: 'bgLeft', src: 'bg/landscape.jpg' },
-    { id: 'bgRight', src: 'bg/food.jpg' }
+    { id: 'bgSplit', src: 'bg/main_split.jpg' }
   ].forEach(function (item) {
     var img = new Image();
     img.onload = function () {
