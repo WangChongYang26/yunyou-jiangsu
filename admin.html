@@ -154,9 +154,10 @@ textarea { min-height: 74px; resize: vertical; line-height: 1.7; }
 <body>
 
 <header>
-  <h1>云游江苏 · 内容管理</h1>
+  <h1>云游江苏 · 内容管理 <span id="verTag" style="font-size:11px;color:#6d8db0;letter-spacing:0;">v3</span></h1>
   <div id="toolbar">
     <span id="authStatus" style="display:none"></span>
+    <button id="forceLoginBtn" type="button" style="margin-right:8px;">🔐 登录</button>
     <button id="saveBtn" type="button">💾 保存全部</button>
     <span id="status">就绪</span>
   </div>
@@ -227,6 +228,9 @@ document.getElementById("lg_register").addEventListener("click", function () {
 document.getElementById("lg_guest").addEventListener("click", function () {
   AUTH = { email: null, role: "guest" };
   hideLogin(); setAuthBar(); load();
+});
+document.getElementById("forceLoginBtn").addEventListener("click", function () {
+  showLogin();
 });
 document.getElementById("authStatus").addEventListener("click", function () {
   if (!AUTH) return;
