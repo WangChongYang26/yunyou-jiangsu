@@ -108,6 +108,47 @@ textarea { min-height: 74px; resize: vertical; line-height: 1.7; }
 .img-thumb .t-ops button:hover { background: #26548c; }
 .img-thumb .t-ops button:first-child { border-right: none; }
 .img-thumb .t-ops button:disabled { opacity: 0.35; cursor: not-allowed; }
+/* ---------- 登录遮罩（云端模式） ---------- */
+#loginOverlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(6, 12, 24, 0.94);
+  display: flex; align-items: center; justify-content: center;
+}
+#loginOverlay.hidden { display: none; }
+.login-box {
+  width: 340px; background: #0e1c33; border: 1px solid rgba(120,180,255,0.3);
+  border-radius: 14px; padding: 26px 26px 22px;
+}
+.login-box h2 { font-size: 18px; letter-spacing: 0.2em; text-align: center; margin-bottom: 4px; color: #eaf3ff; }
+.login-box .sub { font-size: 12px; color: #8fb6dd; text-align: center; margin-bottom: 6px; }
+.login-box .field-label { margin: 12px 0 4px; }
+.login-box input {
+  width: 100%; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid rgba(120,180,255,0.35); background: #10233d; color: #eaf3ff;
+  font-size: 14px; outline: none; font-family: inherit;
+}
+.login-box input:focus { border-color: #6fb3ff; }
+.login-box .row { display: flex; gap: 10px; margin-top: 14px; }
+.login-box .row button {
+  flex: 1; padding: 10px 0; border-radius: 8px; cursor: pointer; font-size: 14px;
+  border: 1px solid rgba(120,180,255,0.35); background: #17324f; color: #cfe3f8;
+}
+.login-box .row button:hover { background: #26548c; }
+.login-box .row button.primary { background: #0f6e56; border-color: #1d9e75; color: #fff; font-weight: 700; }
+.login-box .row button.primary:hover { background: #14846a; }
+.login-box .guest {
+  display: block; width: 100%; margin-top: 12px; padding: 9px 0; border-radius: 8px;
+  cursor: pointer; font-size: 13px; background: transparent; color: #6d8db0;
+  border: 1px dashed rgba(120,180,255,0.35);
+}
+.login-box .guest:hover { color: #9fc3e8; border-color: #6fb3ff; }
+.login-box .err { color: #ff9a9a; font-size: 12px; min-height: 16px; margin-top: 8px; text-align: center; }
+.login-box .switch { text-align: center; margin-top: 8px; font-size: 12px; color: #6d8db0; }
+#authStatus {
+  font-size: 13px; padding: 6px 12px; border-radius: 14px;
+  background: #17324f; color: #8fb6dd; border: 1px solid rgba(120,180,255,0.3);
+  cursor: pointer; white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -115,10 +156,29 @@ textarea { min-height: 74px; resize: vertical; line-height: 1.7; }
 <header>
   <h1>云游江苏 · 内容管理</h1>
   <div id="toolbar">
+    <span id="authStatus" style="display:none"></span>
     <button id="saveBtn" type="button">💾 保存全部</button>
     <span id="status">就绪</span>
   </div>
 </header>
+
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2>云游江苏 · 后台</h2>
+    <div class="sub">云端模式：登录后管理内容</div>
+    <div class="field-label">邮箱</div>
+    <input type="text" id="lg_email" placeholder="you@example.com" autocomplete="email">
+    <div class="field-label">密码</div>
+    <input type="password" id="lg_password" placeholder="至少 6 位" autocomplete="current-password">
+    <div class="err" id="lg_err"></div>
+    <div class="row">
+      <button id="lg_login" type="button" class="primary">登录</button>
+      <button id="lg_register" type="button">注册</button>
+    </div>
+    <button id="lg_guest" type="button" class="guest">游客进入（只读浏览后台）</button>
+    <div class="switch">第一位注册的用户自动成为管理员</div>
+  </div>
+</div>
 
 <main>
   <nav id="cityNav"></nav>
@@ -127,6 +187,70 @@ textarea { min-height: 74px; resize: vertical; line-height: 1.7; }
 
 <script>
 "use strict";
+
+/* ---------- 云端 / 本地双模式 ---------- */
+var IS_CLOUD = /^https:/.test(location.protocol) && !/localhost|127\.0\.0\.1/.test(location.hostname);
+var AUTH = null;   // { email, role } —— role: admin / user / guest
+
+function showLogin() { document.getElementById("loginOverlay").classList.remove("hidden"); }
+function hideLogin() { document.getElementById("loginOverlay").classList.add("hidden"); }
+
+function setAuthBar() {
+  var el = document.getElementById("authStatus");
+  if (!IS_CLOUD || !AUTH) { el.style.display = "none"; return; }
+  el.style.display = "inline-block";
+  el.title = "点击退出登录";
+  el.textContent = (AUTH.role === "admin" ? "管理员 " : "") + (AUTH.email || "游客") + " · 退出";
+}
+
+function doAuth(mode, email, pw) {
+  var errEl = document.getElementById("lg_err");
+  errEl.textContent = "";
+  if (!email || !pw) { errEl.textContent = "请填写邮箱和密码"; return; }
+  fetch("/api/auth/" + mode, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email, password: pw })
+  }).then(function (r) { return r.json(); }).then(function (obj) {
+    if (!obj.ok) { errEl.textContent = obj.error || "操作失败"; return; }
+    AUTH = { email: email, role: obj.role };
+    hideLogin(); setAuthBar(); load();
+  }).catch(function () { errEl.textContent = "网络错误，请重试"; });
+}
+
+document.getElementById("lg_login").addEventListener("click", function () {
+  doAuth("login", document.getElementById("lg_email").value, document.getElementById("lg_password").value);
+});
+document.getElementById("lg_register").addEventListener("click", function () {
+  doAuth("register", document.getElementById("lg_email").value, document.getElementById("lg_password").value);
+});
+document.getElementById("lg_guest").addEventListener("click", function () {
+  AUTH = { email: null, role: "guest" };
+  hideLogin(); setAuthBar(); load();
+});
+document.getElementById("authStatus").addEventListener("click", function () {
+  if (!AUTH) return;
+  fetch("/api/auth/logout", { method: "POST" }).then(function () {
+    AUTH = null; setAuthBar(); showLogin();
+  }).catch(function () { AUTH = null; setAuthBar(); showLogin(); });
+});
+
+function boot() {
+  if (IS_CLOUD) {
+    fetch("/api/auth/session").then(function (r) { return r.json(); }).then(function (obj) {
+      if (obj && obj.authed) {
+        AUTH = { email: obj.email, role: obj.role };
+        setAuthBar(); load();
+      } else {
+        showLogin();      // 等登录 / 游客进入后再 load
+      }
+    }).catch(function () { load(); });
+  } else {
+    hideLogin();      // 本地模式：不显示登录遮罩，照旧
+    load();
+  }
+}
+
 var cities = [];
 var current = 0;
 
@@ -160,18 +284,20 @@ function renderNav() {
     b.addEventListener("click", function () { bgmMode = false; cfgMode = false; current = i; renderNav(); renderEditor(); });
     nav.appendChild(b);
   });
-  var bgmBtn = document.createElement("button");
-  bgmBtn.textContent = "BGM 管理";
-  bgmBtn.className = bgmMode ? "active" : "";
-  bgmBtn.style.marginTop = "10px";
-  bgmBtn.addEventListener("click", function () { bgmMode = true; cfgMode = false; renderNav(); renderBgm(); });
-  nav.appendChild(bgmBtn);
+  if (!IS_CLOUD) {   // 云端暂不支持 BGM / 站点信息编辑
+    var bgmBtn = document.createElement("button");
+    bgmBtn.textContent = "BGM 管理";
+    bgmBtn.className = bgmMode ? "active" : "";
+    bgmBtn.style.marginTop = "10px";
+    bgmBtn.addEventListener("click", function () { bgmMode = true; cfgMode = false; renderNav(); renderBgm(); });
+    nav.appendChild(bgmBtn);
 
-  var cfgBtn = document.createElement("button");
-  cfgBtn.textContent = "站点信息";
-  cfgBtn.className = cfgMode ? "active" : "";
-  cfgBtn.addEventListener("click", function () { cfgMode = true; bgmMode = false; renderNav(); renderConfig(); });
-  nav.appendChild(cfgBtn);
+    var cfgBtn = document.createElement("button");
+    cfgBtn.textContent = "站点信息";
+    cfgBtn.className = cfgMode ? "active" : "";
+    cfgBtn.addEventListener("click", function () { cfgMode = true; bgmMode = false; renderNav(); renderConfig(); });
+    nav.appendChild(cfgBtn);
+  }
 }
 
 /* ---------- 站点信息编辑 ---------- */
@@ -506,6 +632,7 @@ function bindBlockEvents() {
 
 /* ---------- 图片上传（base64 -> /api/upload） ---------- */
 function uploadImg(cb) {
+  if (IS_CLOUD) { alert("云端暂不支持上传图片，请在本地运行 server.py 后上传"); return; }
   var input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
@@ -534,6 +661,7 @@ function uploadImg(cb) {
 
 /* 批量上传多张图（条目多图用），依次上传后回调路径数组 */
 function uploadImgs(files, cb) {
+  if (IS_CLOUD) { alert("云端暂不支持上传图片，请在本地运行 server.py 后上传"); return; }
   var paths = [];
   var idx = 0;
   function next() {
@@ -645,10 +773,32 @@ function normalizeBeforeSave() {
 function saveAll() {
   setStatus("保存中...", "saving");
   normalizeBeforeSave();
+  var payload = JSON.stringify({ data: cities });
+  if (IS_CLOUD) {
+    if (!AUTH || AUTH.role !== "admin") {
+      setStatus("无权限：需要管理员登录", "err");
+      alert("只有管理员可以保存内容，请先登录管理员账号");
+      return;
+    }
+    fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload
+    }).then(function (r) { return r.json(); }).then(function (obj) {
+      if (!obj.ok) {
+        setStatus(obj.error, "err");
+        alert("保存失败：" + obj.error);
+        if (String(obj.error).indexOf("登录") >= 0) showLogin();
+        return;
+      }
+      setStatus("已保存 ✓ 云端生效，刷新前台即生效", "ok");
+    }).catch(function () { setStatus("保存失败：云端不可用", "err"); });
+    return;
+  }
   fetch("/api/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ data: cities })
+    body: payload
   }).then(function (r) { return r.json(); }).then(function (obj) {
     if (!obj.ok) { setStatus(obj.error, "err"); alert("保存失败：" + obj.error); return; }
     setStatus("已保存 ✓ 前台刷新即生效", "ok");
@@ -657,7 +807,7 @@ function saveAll() {
 document.getElementById("saveBtn").addEventListener("click", saveAll);
 
 setupDragDrop();
-load();
+boot();
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
 var __SONGS__ = [
   {
     "name": "BGM · Move Up",
-    "file": "bgm.m4a"
+    "file": "bgm.m4a",
+    "source": "Move Up by Lose Gravity，来自 YouTube Audio Library（免费商用授权，无版权主张）"
   }
 ];
