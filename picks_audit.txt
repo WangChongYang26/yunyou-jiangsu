@@ -62,7 +62,7 @@
 淮安/story_0: Traditional Chinese architecture over a calm canal in Wuzhen, showcasing serene beauty and cultural 
 淮安/story_1: Gold and detailed monkey statue, reflecting Chinese mythology and ornate artistry in Bangkok.
 盐城/scenery_0: A stunning Milu deer with unique antlers grazes peacefully in a lush open field.
-盐城/scenery_1: A majestic grey crowned crane foraging on lush grass in Hungary's outdoors.
+盐城/scenery_1: Red-crowned cranes elegantly standing on snowy landscape in Hokkaido, Japan during winter.
 盐城/scenery_2: Expansive tulip fields with vibrant yellow, pink, and magenta flowers under a dramatic sky in Tyszko
 盐城/food_0: A vibrant bowl of Vietnamese fish noodle soup with herbs, showcasing authentic street food.
 盐城/food_1: Close-up of a gourmet Asian lotus root dish being held with chopsticks, showcasing vibrant flavors.

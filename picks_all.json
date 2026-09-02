@@ -474,11 +474,12 @@
       "rel": "images/pexels_all/盐城/scenery_0.jpg"
     },
     "scenery_1": {
-      "alt": "A majestic grey crowned crane foraging on lush grass in Hungary's outdoors.",
-      "photographer": "Molnár Tamás Photography™ (Pexels)",
-      "url": "https://images.pexels.com/photos/27197889/pexels-photo-27197889.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-      "w": 3072,
-      "h": 4608,
+      "alt": "Red-crowned cranes elegantly standing on snowy landscape in Hokkaido, Japan during winter.",
+      "photographer": "Klub Boks (Pexels)",
+      "url": "https://www.pexels.com/photo/a-white-and-black-crane-birds-on-snow-covered-ground-6903470/",
+      "img_src": "https://images.pexels.com/photos/6903470/pexels-photo-6903470.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "w": 4375,
+      "h": 2917,
       "rel": "images/pexels_all/盐城/scenery_1.jpg"
     },
     "scenery_2": {

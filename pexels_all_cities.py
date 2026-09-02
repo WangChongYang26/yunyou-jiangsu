@@ -89,7 +89,7 @@ PLAN = [
     ("常州", "story", 1, "淹城与春秋", ["ancient city moat", "ancient ruins China"], ["ancient", "moat"], []),
     # ========== 盐城 ==========
     ("盐城", "scenery", 0, "中华麋鹿园", ["Pere David's deer", "milu deer", "elk deer"], ["deer"], ["hunting", "snow"]),
-    ("盐城", "scenery", 1, "丹顶鹤湿地", ["red-crowned crane", "crane bird", "cranes wetland"], ["crane"], []),
+    ("盐城", "scenery", 1, "丹顶鹤湿地", ["red-crowned crane", "tancho crane", "japanese crane"], ["red", "japanese", "tancho"], ["grey", "crowned", "africa", "savanna", "hungary", "brolga", "sandhill", "demoiselle", "sarus", "wattled", "black-crowned", "gray-crowned"]),
     ("盐城", "scenery", 2, "荷兰花海", ["tulip field", "flower field colorful"], ["tulip", "flower"], []),
     ("盐城", "food", 0, "东台鱼汤面", ["fish soup noodles", "fish noodle soup"], ["fish", "noodle"], []),
     ("盐城", "food", 1, "建湖藕粉圆子", ["lotus root balls", "lotus dessert"], ["lotus"], []),
