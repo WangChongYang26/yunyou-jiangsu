@@ -460,11 +460,72 @@
     list.forEach(function (item) { srcs = srcs.concat(itemImgs(item)); });
     preloadImages(srcs).then(function () {
       if (token !== tabToken) return;   // 已切换到其他 tab
-      box.innerHTML = list.map(function (item) {
-        return '<div class="card"><h3>' + item.t + '</h3>' + galleryHtml(item) + '<p>' + item.d + '</p></div>';
+      box.innerHTML = list.map(function (item, i) {
+        var st = storyFor(currentCity.id, item.t);
+        var btn = (st && st.length)
+          ? '<button class="story-btn" type="button" data-story-i="' + i + '">小故事</button>'
+          : '';
+        return '<div class="card"><div class="card-head"><h3>' + item.t + '</h3>' + btn + '</div>' +
+          galleryHtml(item) + '<p>' + item.d + '</p></div>';
       }).join('');
       bindGalleries(box);
+      bindStoryBtns(box, list);
     });
+  }
+
+  /* ---------- 南京小故事：名字旁按钮 → 弹窗 ---------- */
+  function storyFor(cityId, name) {
+    var all = window.__STORY_DATA__ || {};
+    var city = all[cityId];
+    return (city && city[name]) || null;
+  }
+  function bindStoryBtns(box, list) {
+    box.querySelectorAll('.story-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var item = list[Number(btn.getAttribute('data-story-i'))];
+        if (!item) return;
+        var stories = storyFor(currentCity.id, item.t);
+        if (stories && stories.length) openStory(currentCity.name, item.t, stories);
+      });
+    });
+  }
+  var storyMaskEl = null, storyBodyEl = null;
+  function ensureStoryModal() {
+    if (storyMaskEl) return;
+    var mask = document.createElement('div');
+    mask.className = 'story-mask';
+    mask.innerHTML =
+      '<div class="story-modal" role="dialog" aria-modal="true" aria-label="小故事">' +
+        '<div class="story-head">' +
+          '<span class="story-kicker" id="storyKicker"></span>' +
+          '<button class="story-close" type="button" aria-label="关闭">✕</button>' +
+        '</div>' +
+        '<div class="story-body" id="storyBody"></div>' +
+      '</div>';
+    document.body.appendChild(mask);
+    storyMaskEl = mask;
+    storyBodyEl = mask.querySelector('#storyBody');
+    mask.addEventListener('click', function (e) { if (e.target === mask) closeStory(); });
+    mask.querySelector('.story-close').addEventListener('click', closeStory);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeStory(); });
+  }
+  function openStory(cityName, itemName, stories) {
+    ensureStoryModal();
+    var kickerEl = document.getElementById('storyKicker');
+    if (kickerEl) kickerEl.textContent = (cityName || '') + ' · ' + (itemName || '');
+    var body = stories.map(function (st) {
+      var head = st.t ? '<h4>' + st.t + '</h4>' : '';
+      var paras = (st.paras || []).map(function (p) { return '<p>' + p + '</p>'; }).join('');
+      return '<div class="story-block">' + head + paras + '</div>';
+    }).join('');
+    storyBodyEl.innerHTML = body;
+    storyMaskEl.classList.add('open');
+    document.body.classList.add('no-scroll');
+  }
+  function closeStory() {
+    if (!storyMaskEl) return;
+    storyMaskEl.classList.remove('open');
+    document.body.classList.remove('no-scroll');
   }
   document.querySelectorAll('.tab-btn').forEach(function (b) {
     b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
