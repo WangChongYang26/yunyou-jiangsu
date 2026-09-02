@@ -4,6 +4,11 @@
  */
 var __SONGS__ = [
   {
+    "name": "BGM · 茉莉花",
+    "file": "molihua.mp3",
+    "source": "茉莉花（江苏民歌）器乐版 · Mo Li Hua - Chinese Jasmine Flower，by NourishedByMusic，来自 Pixabay（Pixabay Content License，免费商用授权，无需署名）"
+  },
+  {
     "name": "BGM · Move Up",
     "file": "bgm.m4a",
     "source": "Move Up by Lose Gravity，来自 YouTube Audio Library（免费商用授权，无版权主张）"
