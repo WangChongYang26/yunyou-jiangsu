@@ -6,7 +6,7 @@ var __SONGS__ = [
   {
     "name": "BGM · 茉莉花",
     "file": "molihua.mp3",
-    "source": "茉莉花（江苏民歌）器乐版 · Mo Li Hua - Chinese Jasmine Flower，by NourishedByMusic，来自 Pixabay（Pixabay Content License，免费商用授权，无需署名）"
+    "source": "茉莉花（江苏民歌）器乐版 · Mo Li Hua - Chinese Jasmine Flower，by NourishedByMusic，来自 Pixabay（Pixabay Content License，免费商用授权，无需署名）。来源页：https://pixabay.com/music/china-mo-li-hua-chinese-jasmine-flower-356371/"
   },
   {
     "name": "BGM · Move Up",
