@@ -427,6 +427,80 @@
     });
   }
 
+  /* ---------- 景区官方渠道入口 ----------
+   * 定位：仅提供景区官方渠道"信息索引"，站内不产生任何交易、不代收费用。
+   * 数据来源：city_data.js 每个条目可选的 ticket 字段
+   *   { web: 官网地址, webName: 官网名, wx: 微信公众号名, note: 票价/预约说明 }
+   * 规则：只指向景区自有官网或官方公众号；无可靠官方线上入口的景点只给文字说明，不挂链接。
+   */
+  function escAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+  function ticketHtml(item) {
+    var tk = item && item.ticket;
+    if (!tk) return '';
+    var btns = '';
+    if (tk.web) {
+      btns += '<a class="ticket-btn" href="' + escAttr(tk.web) + '" target="_blank" ' +
+        'rel="noopener noreferrer nofollow" title="前往' + escAttr(tk.webName || '景区官方渠道') + '">官方渠道 ↗</a>';
+    }
+    if (tk.wx) {
+      btns += '<button class="ticket-btn wx" type="button" data-wx="' + escAttr(tk.wx) + '">复制公众号「' +
+        escAttr(tk.wx) + '」</button>';
+    }
+    var note = tk.note ? '<span class="ticket-note">' + escAttr(tk.note) + '</span>' : '';
+    return '<div class="ticket-box">' +
+      '<div class="ticket-row">' + note + btns + '</div>' +
+      '<div class="ticket-disclaimer">本站仅提供景区官方渠道的信息索引，不参与票务交易、不代收任何费用；票价、开放时间与预约规则请以景区官方发布为准。</div>' +
+      '</div>';
+  }
+  // 复制文本：优先 Clipboard API，失败回退 execCommand（本地 file:// 打开时兜底）
+  function copyText(text, done) {
+    function fallback() {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) done();
+      } catch (e) {}
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+  function bindTicketBtns(box) {
+    box.querySelectorAll('.ticket-btn.wx').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        copyText(btn.getAttribute('data-wx') || '', function () {
+          if (btn._copied) return;
+          btn._copied = true;
+          var old = btn.textContent;
+          btn.textContent = '已复制 · 去微信搜索 →';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = old;
+            btn.classList.remove('copied');
+            btn._copied = false;
+          }, 2400);
+        });
+      });
+    });
+  }
+
   function switchTab(tab) {
     if (!currentCity) return;
     var token = ++tabToken;   // 竞态保护：快速切 tab 时丢弃过期结果
@@ -466,10 +540,11 @@
           ? '<button class="story-btn" type="button" data-story-i="' + i + '">小故事</button>'
           : '';
         return '<div class="card"><div class="card-head"><h3>' + item.t + '</h3>' + btn + '</div>' +
-          galleryHtml(item) + '<p>' + item.d + '</p></div>';
+          galleryHtml(item) + '<p>' + item.d + '</p>' + ticketHtml(item) + '</div>';
       }).join('');
       bindGalleries(box);
       bindStoryBtns(box, list);
+      bindTicketBtns(box);
     });
   }
 

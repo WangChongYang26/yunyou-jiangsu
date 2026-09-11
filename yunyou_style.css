@@ -405,6 +405,62 @@ html, body {
 .g-dots .dot.active { background: #ffd98a; }
 .card p { font-size: var(--fs-16); line-height: 1.9; color: var(--text); }
 
+/* ===== 景区官方渠道入口（卡片底部） ===== */
+.ticket-box {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--teal-soft);
+}
+.ticket-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ticket-note {
+  flex: 1 1 100%;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+.ticket-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border: 1px solid var(--teal-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--teal);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.ticket-btn:hover {
+  background: var(--teal-soft);
+  color: var(--ink-900);
+  border-color: var(--teal);
+}
+.ticket-btn.wx {
+  border-color: var(--gold-soft);
+  color: var(--gold);
+}
+.ticket-btn.wx:hover,
+.ticket-btn.copied {
+  background: var(--gold-soft);
+  color: var(--ink-900);
+  border-color: var(--gold);
+}
+.ticket-disclaimer {
+  margin-top: 9px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-3);
+}
+
 #tabContent { min-height: 120px; }
 #tabContent.has-bg {
   border-radius: 16px;
